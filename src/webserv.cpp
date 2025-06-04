@@ -11,7 +11,8 @@ int main() {
         return 1;
     }
 
-    sockaddr_in address{};
+    sockaddr_in address;
+    memset(&address, 0, sizeof(address));
     int port = 8080;
     address.sin_family = AF_INET;
     address.sin_addr.s_addr = INADDR_ANY;
@@ -37,7 +38,8 @@ int main() {
             continue;
         }
 
-        char buffer[3000] = {0};
+        char buffer[3000];
+        memset(buffer, 0, sizeof(buffer));
         read(client_fd, buffer, 3000);
 
         std::string response =
