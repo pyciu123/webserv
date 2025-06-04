@@ -6,4 +6,5 @@ int main()
 	Server server;
 	server.setupSocket();
 	server.run();
+	return 0;
 }
