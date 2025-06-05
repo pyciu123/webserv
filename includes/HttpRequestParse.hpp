@@ -11,6 +11,7 @@ class HttpRequestParse {
 		std::string _httpVersion;
 		std::map<std::string, std::string> _headers;
 		std::string _body;
+		size_t _contentLength;
 	
 	public:
 		HttpRequestParse(const std::string &rawRequest);
@@ -20,6 +21,15 @@ class HttpRequestParse {
 
 		// methods
 		void parseRequest();
+		void printAll() const; // only for testin
+
+		//getters
+		std::string getMethod() const;
+		std::string getPath() const;
+		std::string getHttpVersion() const;
+		std::map<std::string, std::string> getHeaders() const;
+		std::string getBody() const;
+		size_t getContentLength() const;
 };
 
 #endif

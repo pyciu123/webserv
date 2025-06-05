@@ -2,6 +2,7 @@
 # define SERVER_HPP
 
 #include "Webserv.hpp"
+#include "HttpRequestParse.hpp"
 
 class Server {
 	private:
@@ -9,8 +10,9 @@ class Server {
 		int port;
 		sockaddr_in address;
 		int acceptConnection();
-		std::string handleRequest();
+		std::string generateResponse(const HttpRequestParse &req);
 		void sendResponse(int client_id, const std::string &response);
+		std::string reciveRequest(int client_fd);
 
 	public:
 		Server();
