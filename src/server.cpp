@@ -1,4 +1,4 @@
-#include  "../includes/server.hpp"
+#include  "../includes/Server.hpp"
 
 // constructors, destructors, =operator
 Server::Server() : server_fd(-1), port(8080) {}
@@ -30,20 +30,47 @@ int Server::acceptConnection()
     return client_fd;
 }
 
-std::string Server::handleRequest()
+std::string Server::generateResponse(const HttpRequestParse &req)
 {
-    std::string response =
-        "HTTP/1.1 200 OK\r\n"
-        "Content-Type: text/plain\r\n"
-        "Content-Length: 14\r\n"
-            "\r\n"
-            "chuj ci w dupe";
-    return response;
+	std::ostringstream body;
+	body << "Method: " << req.getMethod() << "\n";
+	body << "Path: " << req.getPath() << "\n";
+	body << "HTTP Version: " << req.getHttpVersion() << "\n";
+	body << "Headers:\n";
+	const std::map<std::string, std::string>& headers = req.getHeaders();
+    for (std::map<std::string, std::string>::const_iterator it = headers.begin(); it != headers.end(); ++it)
+		body << "  " << it->first << ": " << it->second << "\n";
+	body << "Body:\n" << req.getBody() << "\n";
+
+	std::string bodyStr = body.str();
+	std::ostringstream response;
+	response << "HTTP/1.1 200 OK\r\n";
+	response << "Content-Type: text/plain\r\n";
+	response << "Content-Length: " << bodyStr.size() << "\r\n";
+	response << "Connection: close\r\n";
+	response << "\r\n";
+	response << bodyStr;
+
+	return response.str();
 }
 
 void Server::sendResponse(int client_id, const std::string &response)
 {
     write(client_id, response.c_str(), response.length());
+}
+
+std::string Server::reciveRequest(int client_fd)
+{
+    char buffer[1024];
+    std::string request;
+    ssize_t bytesRead;
+    while ((bytesRead = read(client_fd, buffer, sizeof(buffer))) > 0)
+    {
+        request.append(buffer, bytesRead);
+        if (request.find("\r\n\r\n") != std::string::npos)
+            break ;
+    }
+    return request;
 }
 
 
@@ -77,6 +104,7 @@ void Server::run()
 {
     int client_id;
     std::string response;
+    std::string clientRequest;
     while (true)
     {
         client_id = Server::acceptConnection();
@@ -84,7 +112,10 @@ void Server::run()
             continue;
         else
         {
-            response = Server::handleRequest();
+            clientRequest = Server::reciveRequest(client_id);
+            HttpRequestParse req(clientRequest);
+            req.parseRequest();
+            response = Server::generateResponse(req);
             Server::sendResponse(client_id, response);
             close(client_id);
         }

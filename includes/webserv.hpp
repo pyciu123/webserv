@@ -9,5 +9,7 @@
 // c++
 #include <iostream>
 #include <cstring>
+#include <map>
+#include <sstream>
 
 #endif
