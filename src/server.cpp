@@ -32,26 +32,10 @@ int Server::acceptConnection()
 
 std::string Server::generateResponse(const HttpRequestParse &req)
 {
-	std::ostringstream body;
-	body << "Method: " << req.getMethod() << "\n";
-	body << "Path: " << req.getPath() << "\n";
-	body << "HTTP Version: " << req.getHttpVersion() << "\n";
-	body << "Headers:\n";
-	const std::map<std::string, std::string>& headers = req.getHeaders();
-    for (std::map<std::string, std::string>::const_iterator it = headers.begin(); it != headers.end(); ++it)
-		body << "  " << it->first << ": " << it->second << "\n";
-	body << "Body:\n" << req.getBody() << "\n";
-
-	std::string bodyStr = body.str();
-	std::ostringstream response;
-	response << "HTTP/1.1 200 OK\r\n";
-	response << "Content-Type: text/plain\r\n";
-	response << "Content-Length: " << bodyStr.size() << "\r\n";
-	response << "Connection: close\r\n";
-	response << "\r\n";
-	response << bodyStr;
-
-	return response.str();
+    HttpResponse res;
+	std::string response;
+    response = res.buildResponse(req);
+    return response;
 }
 
 void Server::sendResponse(int client_id, const std::string &response)
