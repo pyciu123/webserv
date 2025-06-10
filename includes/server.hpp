@@ -1,9 +1,9 @@
 #ifndef SERVER_HPP
 # define SERVER_HPP
 
-#include "Webserv.hpp"
-#include "HttpRequestParse.hpp"
-#include "HttpResponse.hpp"
+#include "../includes/webserv.hpp"
+#include "../includes/HttpRequestParse.hpp"
+#include "../includes/HttpResponse.hpp"
 
 class Server {
 	private:

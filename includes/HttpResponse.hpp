@@ -1,8 +1,8 @@
 #ifndef HTTPRESPONSE_HPP
 # define HTTPRESPONSE_HPP
 
-#include "HttpRequestParse.hpp"
-#include "Webserv.hpp"
+#include "../includes/HttpRequestParse.hpp"
+#include "../includes/webserv.hpp"
 
 class HttpResponse
 {

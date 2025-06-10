@@ -1,5 +1,5 @@
-#include "../includes/Server.hpp"
-#include "../includes/Webserv.hpp"
+#include "../includes/server.hpp"
+#include "../includes/webserv.hpp"
 #include "../includes/HttpRequestParse.hpp"
 
 int main()

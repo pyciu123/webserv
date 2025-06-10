@@ -1,4 +1,4 @@
-#include  "../includes/Server.hpp"
+#include  "../includes/server.hpp"
 
 // constructors, destructors, =operator
 Server::Server() : server_fd(-1), port(8080) {}
