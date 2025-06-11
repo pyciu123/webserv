@@ -6,7 +6,7 @@
 /*   By: pmilek <pmilek@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/11 14:59:11 by pmilek            #+#    #+#             */
-/*   Updated: 2025/06/11 15:33:10 by pmilek           ###   ########.fr       */
+/*   Updated: 2025/06/11 15:55:47 by pmilek           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,11 +17,19 @@
 #include <vector>
 #include <string>
 #include <map>
+#include <utility>
 
 struct LocationConfig {
 	std::string path;
 	std::vector<std::string> methods;
 	std::string upload_path;
+	std::vector<std::string> index;
+	bool autoindex;
+	std::pair<int, std::string> redirection;
+	std::string cgi_extension;
+	std::string cgi_path;
+
+	LocationConfig() : autoindex(false), redirection(std::make_pair(0, "")) {}
 };
 
 struct ServerConfig {
