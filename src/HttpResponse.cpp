@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   HttpResponse.cpp                                   :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: pmilek <pmilek@student.42.fr>              +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/06/11 14:55:52 by pmilek            #+#    #+#             */
+/*   Updated: 2025/06/11 14:55:52 by pmilek           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../includes/HttpResponse.hpp"
 
 // constuctors/destructors
@@ -32,7 +44,7 @@ bool HttpResponse::_exists(const std::string &path)
 
 std::string HttpResponse::_readFile(const std::string &path)
 {
-	std::ifstream file(path);
+	std::ifstream file(path.c_str());
 	if (!file.is_open())
 		throw std::runtime_error("Failed to open file:" + path);
 	std::stringstream buffer;
