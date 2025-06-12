@@ -32,7 +32,7 @@ bool HttpResponse::_exists(const std::string &path)
 
 std::string HttpResponse::_readFile(const std::string &path)
 {
-	std::ifstream file(path);
+	std::ifstream file(path.c_str());
 	if (!file.is_open())
 		throw std::runtime_error("Failed to open file:" + path);
 	std::stringstream buffer;
