@@ -1,16 +1,16 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   server.cpp                                         :+:      :+:    :+:   */
+/*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: pmilek <pmilek@student.42.fr>              +#+  +:+       +#+        */
+/*   By: jpyciarz <jpyciarz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/11 14:56:03 by pmilek            #+#    #+#             */
-/*   Updated: 2025/06/11 15:42:30 by pmilek           ###   ########.fr       */
+/*   Updated: 2025/06/12 11:03:03 by jpyciarz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include  "../includes/server.hpp"
+#include "../includes/Server.hpp"
 
 // constructors, destructors, =operator
 Server::Server(const ServerConfig &cfg) : config(cfg) {
@@ -73,7 +73,7 @@ void Server::setupSocket()
 	memset(&address, 0, sizeof(address));
 	address.sin_family = AF_INET;
 	address.sin_addr.s_addr = INADDR_ANY;
-	address.sin_port = htons(port); // ← teraz dynamicznie
+	address.sin_port = htons(port);
 
 	if (bind(server_fd, (sockaddr*)&address, sizeof(address)) < 0) {
 		std::cerr << "bind failed" << std::endl;

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpResponse.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: pmilek <pmilek@student.42.fr>              +#+  +:+       +#+        */
+/*   By: jpyciarz <jpyciarz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/11 14:55:33 by pmilek            #+#    #+#             */
-/*   Updated: 2025/06/11 14:55:34 by pmilek           ###   ########.fr       */
+/*   Updated: 2025/06/12 10:59:19 by jpyciarz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 # define HTTPRESPONSE_HPP
 
 #include "../includes/HttpRequestParse.hpp"
-#include "../includes/webserv.hpp"
+#include "../includes/Webserv.hpp"
 
 class HttpResponse
 {

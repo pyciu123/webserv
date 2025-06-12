@@ -3,16 +3,15 @@
 /*                                                        :::      ::::::::   */
 /*   ConfigParser.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: pmilek <pmilek@student.42.fr>              +#+  +:+       +#+        */
+/*   By: jpyciarz <jpyciarz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/11 14:59:21 by pmilek            #+#    #+#             */
-/*   Updated: 2025/06/11 15:57:25 by pmilek           ###   ########.fr       */
+/*   Updated: 2025/06/12 10:56:32 by jpyciarz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/ConfigParser.hpp"
-#include <fstream>
-#include <sstream>
+#include "../includes/Webserv.hpp"
 
 ConfigParser::ConfigParser(const std::string &path) : _filepath(path) {}
 

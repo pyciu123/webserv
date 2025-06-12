@@ -3,27 +3,27 @@
 /*                                                        :::      ::::::::   */
 /*   server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: pmilek <pmilek@student.42.fr>              +#+  +:+       +#+        */
+/*   By: jpyciarz <jpyciarz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/11 14:55:37 by pmilek            #+#    #+#             */
-/*   Updated: 2025/06/11 15:42:37 by pmilek           ###   ########.fr       */
+/*   Updated: 2025/06/12 11:05:36 by jpyciarz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef SERVER_HPP
 # define SERVER_HPP
 
-#include "../includes/webserv.hpp"
+#include "../includes/Webserv.hpp"
 #include "../includes/HttpRequestParse.hpp"
 #include "../includes/HttpResponse.hpp"
-#include "../includes/ConfigParser.hpp"  // ⬅️ dodaj to
+#include "../includes/ConfigParser.hpp"
 
 class Server {
 	private:
 		int server_fd;
 		int port;
 		sockaddr_in address;
-		ServerConfig config; // ⬅️ przechowujemy dane z parsera
+		ServerConfig config;
 
 		int acceptConnection();
 		std::string generateResponse(const HttpRequestParse &req);
@@ -31,7 +31,7 @@ class Server {
 		std::string reciveRequest(int client_fd);
 
 	public:
-		Server(const ServerConfig &cfg);  // ⬅️ nowy konstruktor
+		Server(const ServerConfig &cfg);
 		~Server();
 
 		// methods

@@ -1,17 +1,17 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.cpp                                           :+:      :+:    :+:   */
+/*   Main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: pmilek <pmilek@student.42.fr>              +#+  +:+       +#+        */
+/*   By: jpyciarz <jpyciarz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/11 14:55:56 by pmilek            #+#    #+#             */
-/*   Updated: 2025/06/11 15:42:18 by pmilek           ###   ########.fr       */
+/*   Updated: 2025/06/12 11:02:34 by jpyciarz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../includes/server.hpp"
-#include "../includes/webserv.hpp"
+#include "../includes/Server.hpp"
+#include "../includes/Webserv.hpp"
 #include "../includes/HttpRequestParse.hpp"
 #include "../includes/ConfigParser.hpp"
 

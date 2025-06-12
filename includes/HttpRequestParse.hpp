@@ -3,17 +3,17 @@
 /*                                                        :::      ::::::::   */
 /*   HttpRequestParse.hpp                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: pmilek <pmilek@student.42.fr>              +#+  +:+       +#+        */
+/*   By: jpyciarz <jpyciarz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/11 14:55:26 by pmilek            #+#    #+#             */
-/*   Updated: 2025/06/11 14:55:27 by pmilek           ###   ########.fr       */
+/*   Updated: 2025/06/12 10:59:06 by jpyciarz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef HTTPREQUESTPARSE
 # define HTTPREQUESTPARSE
 
-#include "../includes/webserv.hpp"
+#include "../includes/Webserv.hpp"
 
 class HttpRequestParse {
 	private:
