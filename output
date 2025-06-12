@@ -1,0 +1,474 @@
+-e 
+===== ./Makefile =====
+NAME = webserv
+
+SRCS = $(wildcard src/*.cpp)
+INC = $(wildcard includes/*.hpp)
+
+all: $(NAME)
+
+$(NAME): $(SRCS) $(INC)
+	c++ -Wall -Wextra -Werror -std=c++98 -Iincludes -g -fsanitize=address $(SRCS) -o $(NAME)
+
+clean:
+	rm -f *.o
+
+fclean: clean
+	rm -f $(NAME)
+
+re: fclean all-e 
+===== ./includes/server.hpp =====
+#ifndef SERVER_HPP
+# define SERVER_HPP
+
+#include "../includes/webserv.hpp"
+#include "../includes/HttpRequestParse.hpp"
+#include "../includes/HttpResponse.hpp"
+
+class Server {
+	private:
+		int server_fd;
+		int port;
+		sockaddr_in address;
+		int acceptConnection();
+		std::string generateResponse(const HttpRequestParse &req);
+		void sendResponse(int client_id, const std::string &response);
+		std::string reciveRequest(int client_fd);
+
+	public:
+		Server();
+		Server(const Server &copy);
+		Server &operator=(const Server &other);
+		~Server();
+
+		// methods
+		void setupSocket();
+		void run();
+		
+		// getters
+		int getPort();
+};
+
+#endif-e 
+===== ./includes/HttpResponse.hpp =====
+#ifndef HTTPRESPONSE_HPP
+# define HTTPRESPONSE_HPP
+
+#include "../includes/HttpRequestParse.hpp"
+#include "../includes/webserv.hpp"
+
+class HttpResponse
+{
+	private:
+		int _status;
+		std::string _statusMessage;
+		std::string _handleGet(const HttpRequestParse &req);
+		bool _exists(const std::string &path);
+		std::string _readFile(const std::string &path);
+	
+	public:
+		HttpResponse();
+		HttpResponse(const HttpResponse &copy);
+		HttpResponse &operator=(const HttpResponse &other);
+		~HttpResponse();
+
+		// methods
+		std::string buildResponse(const HttpRequestParse &req);
+
+};
+
+#endif-e 
+===== ./includes/webserv.hpp =====
+#ifndef WEBSERV_HPP
+# define WEBSERV_HPP
+
+// c
+#include <netinet/in.h>
+#include <sys/socket.h>
+#include <unistd.h>
+
+// c++
+#include <iostream>
+#include <cstring>
+#include <map>
+#include <sstream>
+#include <fstream>
+
+#endif-e 
+===== ./includes/HttpRequestParse.hpp =====
+#ifndef HTTPREQUESTPARSE
+# define HTTPREQUESTPARSE
+
+#include "../includes/webserv.hpp"
+
+class HttpRequestParse {
+	private:
+		std::string _rawRequest;
+		std::string	_method;
+		std::string _path;
+		std::string _httpVersion;
+		std::map<std::string, std::string> _headers;
+		std::string _body;
+		size_t _contentLength;
+	
+	public:
+		HttpRequestParse(const std::string &rawRequest);
+		HttpRequestParse(const HttpRequestParse &copy);
+		HttpRequestParse &operator=(const HttpRequestParse &other);
+		~HttpRequestParse();
+
+		// methods
+		void parseRequest();
+		void printAll() const; // only for testin
+
+		//getters
+		std::string getMethod() const;
+		std::string getPath() const;
+		std::string getHttpVersion() const;
+		std::map<std::string, std::string> getHeaders() const;
+		std::string getBody() const;
+		size_t getContentLength() const;
+};
+
+#endif-e 
+===== ./src/HttpRequestParse.cpp =====
+#include "../includes/HttpRequestParse.hpp"
+
+// constructors/destructor
+HttpRequestParse::HttpRequestParse(const std::string &rawRequest) : _rawRequest(rawRequest), _path(""), _httpVersion(""), _body(""), _contentLength(-1) {}
+
+HttpRequestParse::HttpRequestParse(const HttpRequestParse &copy)
+{
+	*this = copy;
+}
+
+HttpRequestParse &HttpRequestParse::operator=(const HttpRequestParse &other)
+{
+	if (this != &other)
+	{
+		_rawRequest = other._rawRequest;
+		_path = other._path;
+		_httpVersion = other._httpVersion;
+		_headers = other._headers;
+		_body = other._body;
+		_method = other._method;
+		_contentLength = other._contentLength;
+	}
+	return *this;
+}
+
+HttpRequestParse::~HttpRequestParse() {}
+
+
+void HttpRequestParse::printAll() const
+{
+    std::cout << "Method: " << _method << std::endl;
+    std::cout << "Path: " << _path << std::endl;
+    std::cout << "HTTP Version: " << _httpVersion << std::endl;
+
+    std::cout << "Headers:" << std::endl;
+    for (std::map<std::string, std::string>::const_iterator it = _headers.begin(); it != _headers.end(); ++it)
+    {
+        std::cout << "  " << it->first << ": " << it->second << std::endl;
+    }
+
+    std::cout << "Body:\n" << _body << std::endl;
+}
+
+// methods
+void HttpRequestParse::parseRequest()
+{
+	std::istringstream stream(_rawRequest);
+	std::string line;
+	bool isFirstLine = true;
+	bool isHeaders = false;
+	bool isBody = false;
+	while (std::getline(stream, line))
+	{
+		line.erase(line.find_last_not_of("\r") + 1);
+
+		if (isFirstLine) {
+			std::istringstream iss(line);
+			iss >> _method >> _path >> _httpVersion;
+			if (_method.empty() || _path.empty() || _httpVersion.empty())
+				throw std::runtime_error("400 Bad Request: invalid request line");
+
+			isFirstLine = false;
+			isHeaders   = true;
+			continue;                // <-- KLUCZOWA LINIA
+		}
+
+		if (isHeaders) {
+			if (line.empty()) {
+				isHeaders = false;
+				isBody    = true;
+				continue;
+			}
+
+			size_t pos = line.find(':');
+			if (pos == std::string::npos)
+				throw std::runtime_error("400 Bad Request: invalid header format");
+
+			std::string key   = line.substr(0, pos);
+			std::string value = line.substr(pos + 1);
+			value.erase(0, value.find_first_not_of(' '));
+			_headers[key] = value;
+			continue;
+		}
+
+		if (isBody)
+			_body += line + '\n';
+	}
+}
+
+
+// getters
+std::string HttpRequestParse::getMethod() const
+{
+	return _method;
+}
+
+std::string HttpRequestParse::getPath() const
+{
+	return _path;
+}
+
+std::string HttpRequestParse::getHttpVersion() const
+{
+	return _httpVersion;
+}
+
+std::map<std::string, std::string> HttpRequestParse::getHeaders() const
+{
+	return _headers;
+}
+
+std::string HttpRequestParse::getBody() const
+{
+	return _body;
+}
+
+size_t HttpRequestParse::getContentLength() const
+{
+	return _contentLength;
+}-e 
+===== ./src/HttpResponse.cpp =====
+#include "../includes/HttpResponse.hpp"
+
+// constuctors/destructors
+HttpResponse::HttpResponse() : _status(200), _statusMessage("") {}
+
+HttpResponse::HttpResponse(const HttpResponse &copy)
+{
+	*this = copy;
+}
+
+HttpResponse &HttpResponse::operator=(const HttpResponse &other)
+{
+	if (this != &other)
+	{
+		_status = other._status;
+		_statusMessage = other._statusMessage;
+	}
+	return *this;
+}
+
+HttpResponse::~HttpResponse() {}
+
+
+// private methods
+bool HttpResponse::_exists(const std::string &path)
+{
+	if (FILE *file = fopen(path.c_str(), "r"))
+		return fclose(file), true;
+	else
+		return false;
+}
+
+std::string HttpResponse::_readFile(const std::string &path)
+{
+	std::ifstream file(path);
+	if (!file.is_open())
+		throw std::runtime_error("Failed to open file:" + path);
+	std::stringstream buffer;
+	buffer << file.rdbuf();
+	std::string content = buffer.str();
+	return content;
+}
+
+std::string HttpResponse::_handleGet(const HttpRequestParse &req)
+{
+	std::string filePath = "www" + req.getPath();
+	if (!_exists(filePath))
+		return "HTTP/1.1 404 Not Found\r\n\r\n404 Not Found";
+
+	std::string body = _readFile(filePath);
+
+	std::ostringstream response;
+	response << "HTTP/1.1 200 OK\r\n";
+	response << "Content-Type: text/html\r\n";
+	response << "Content-Length: " << body.size() << "\r\n";
+	response << "Connection: close\r\n";
+	response << "\r\n";
+	response << body;
+
+	return response.str();
+}
+
+
+//methods
+std::string HttpResponse::buildResponse(const HttpRequestParse &req)
+{
+	std::string response;
+	if (req.getMethod() == "GET")
+		response = HttpResponse::_handleGet(req);
+	else if (req.getMethod() == "POST")
+		response = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: 4\r\n\r\nPOST";
+	else if (req.getMethod() == "DELETE")
+		response = response = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: 6\r\n\r\nDELETE";
+	else
+		response =  "HTTP/1.1 405 Method Not Allowed\r\n\r\nMethod No Allowed";
+	return response;
+}-e 
+===== ./src/main.cpp =====
+#include "../includes/server.hpp"
+#include "../includes/webserv.hpp"
+#include "../includes/HttpRequestParse.hpp"
+
+int main()
+{
+	Server server;
+	server.setupSocket();
+	server.run();
+
+	// std::string raw =
+	// 	"POST /upload HTTP/1.1\r\n"
+	// 	"Host: localhost:8080\r\n"
+	// 	"Content-Type: application/json\r\n"
+	// 	"Custom-Header: test-value\r\n"
+	// 	"\r\n"
+	// 	"{\n"
+	// 	"  \"username\": \"jakub\",\n"
+	// 	"  \"action\": \"upload\",\n"
+	// 	"  \"file\": \"data.txt\"\n"
+	// 	"}";
+
+	// HttpRequestParse request(raw);
+	// request.parseRequest();
+	return 0;
+}-e 
+===== ./src/server.cpp =====
+#include  "../includes/server.hpp"
+
+// constructors, destructors, =operator
+Server::Server() : server_fd(-1), port(8080) {}
+
+Server::Server(const Server &copy)
+{
+    *this = copy;
+}
+
+Server &Server::operator=(const Server &other)
+{
+    this->server_fd = other.server_fd;
+    return *this;
+}
+
+Server::~Server() {}
+
+
+// private methods
+int Server::acceptConnection()
+{
+    socklen_t addrlen = sizeof(address);
+    int client_fd = accept(server_fd, (sockaddr*)&address, &addrlen);
+    if (client_fd < 0)
+    {
+        std::cerr << "failed to setup client_id" << std::endl;
+        return 1;
+    }
+    return client_fd;
+}
+
+std::string Server::generateResponse(const HttpRequestParse &req)
+{
+    HttpResponse res;
+	std::string response;
+    response = res.buildResponse(req);
+    return response;
+}
+
+void Server::sendResponse(int client_id, const std::string &response)
+{
+    write(client_id, response.c_str(), response.length());
+}
+
+std::string Server::reciveRequest(int client_fd)
+{
+    char buffer[1024];
+    std::string request;
+    ssize_t bytesRead;
+    while ((bytesRead = read(client_fd, buffer, sizeof(buffer))) > 0)
+    {
+        request.append(buffer, bytesRead);
+        if (request.find("\r\n\r\n") != std::string::npos)
+            break ;
+    }
+    return request;
+}
+
+
+// public methods
+void Server::setupSocket()
+{
+    server_fd = socket(AF_INET, SOCK_STREAM, 0);
+    if (server_fd == -1)
+    {
+        std::cerr << "socked failed" << std::endl;
+        return ;
+    }
+    memset(&address, 0, sizeof(address));
+    address.sin_family = AF_INET;
+    address.sin_addr.s_addr = INADDR_ANY;
+    address.sin_port = htons(port);
+    if (bind(server_fd, (sockaddr*)&address, sizeof(address)) < 0)
+    {
+        std::cerr << "bind failed" << std::endl;
+        return ;
+    }
+    if (listen(server_fd, 10) < 0)
+    {
+        std::cerr << "listen" << std::endl;
+        return ;
+    }
+    std::cout << "Server running at http://localhost:" << port << std::endl;
+}
+
+void Server::run()
+{
+    int client_id;
+    std::string response;
+    std::string clientRequest;
+    while (true)
+    {
+        client_id = Server::acceptConnection();
+        if (client_id < 0)
+            continue;
+        else
+        {
+            clientRequest = Server::reciveRequest(client_id);
+            HttpRequestParse req(clientRequest);
+            req.parseRequest();
+            response = Server::generateResponse(req);
+            Server::sendResponse(client_id, response);
+            close(client_id);
+        }
+    }
+}
+
+
+// getters/setters
+int Server::getPort()
+{
+    return port;
+}

@@ -43,6 +43,12 @@
 		"typeinfo": "cpp",
 		"unordered_map": "cpp",
 		"variant": "cpp",
-		"vector": "cpp"
+		"vector": "cpp",
+		"__tree": "cpp",
+		"fstream": "cpp",
+		"iomanip": "cpp",
+		"map": "cpp",
+		"sstream": "cpp",
+		"memory": "cpp"
 	}
 }
