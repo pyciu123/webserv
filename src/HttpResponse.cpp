@@ -3,17 +3,17 @@
 /*                                                        :::      ::::::::   */
 /*   HttpResponse.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: pmilek <pmilek@student.42.fr>              +#+  +:+       +#+        */
+/*   By: jpyciarz <jpyciarz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/11 14:55:52 by pmilek            #+#    #+#             */
-/*   Updated: 2025/06/11 14:55:52 by pmilek           ###   ########.fr       */
+/*   Updated: 2025/07/21 09:27:16 by jpyciarz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/HttpResponse.hpp"
 
 // constuctors/destructors
-HttpResponse::HttpResponse() : _status(200), _statusMessage("") {}
+HttpResponse::HttpResponse(const ServerConfig &cfg) : _config(cfg), _status(200), _statusMessage("") {}
 
 HttpResponse::HttpResponse(const HttpResponse &copy)
 {
@@ -55,7 +55,7 @@ std::string HttpResponse::_readFile(const std::string &path)
 
 std::string HttpResponse::_handleGet(const HttpRequestParse &req)
 {
-	std::string filePath = "www" + req.getPath();
+	std::string filePath = _config.root + req.getPath();
 	if (!_exists(filePath))
 		return "HTTP/1.1 404 Not Found\r\n\r\n404 Not Found";
 

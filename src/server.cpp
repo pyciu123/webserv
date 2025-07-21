@@ -6,7 +6,7 @@
 /*   By: jpyciarz <jpyciarz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/11 14:56:03 by pmilek            #+#    #+#             */
-/*   Updated: 2025/06/12 11:24:40 by jpyciarz         ###   ########.fr       */
+/*   Updated: 2025/07/21 09:21:13 by jpyciarz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,7 @@ int Server::acceptConnection()
 
 std::string Server::generateResponse(const HttpRequestParse &req)
 {
-    HttpResponse res;
+    HttpResponse res(config);
 	std::string response;
     response = res.buildResponse(req);
     return response;
