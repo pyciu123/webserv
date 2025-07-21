@@ -1,15 +1,21 @@
+#!/Users/kubapyciarz/.pyenv/versions/3.10.12/bin/python3
+import cgi
+import cgitb
 import os
-import sys
-import urllib.parse
 
-length = int(os.environ.get("CONTENT_LENGTH", 0))
-body = sys.stdin.read(length)
+cgitb.enable()  # Włącz debugowanie CGI
 
-params = urllib.parse.parse_qs(body)
-a = int(params.get("a", [0])[0])
-b = int(params.get("b", [0])[0])
-result = a + b
+form = cgi.FieldStorage()
+a = form.getvalue('a')
+b = form.getvalue('b')
 
-print("Content-Type: text/html")
+print("Content-Type: text/plain")
 print()
-print(f"<html><body><h1>Wynik: {a} + {b} = {result}</h1></body></html>")
+if a and b:
+    try:
+        result = int(a) + int(b)
+        print(f"Result: {result}")
+    except ValueError:
+        print("Error: Invalid input for a or b")
+else:
+    print("Error: Missing a or b parameters")

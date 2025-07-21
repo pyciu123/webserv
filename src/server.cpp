@@ -1,17 +1,21 @@
-#include  "../includes/Server.hpp"
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   Server.cpp                                         :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: jpyciarz <jpyciarz@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/06/11 14:56:03 by pmilek            #+#    #+#             */
+/*   Updated: 2025/07/21 09:21:13 by jpyciarz         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "../includes/Server.hpp"
 
 // constructors, destructors, =operator
-Server::Server() : server_fd(-1), port(8080) {}
-
-Server::Server(const Server &copy)
-{
-    *this = copy;
-}
-
-Server &Server::operator=(const Server &other)
-{
-    this->server_fd = other.server_fd;
-    return *this;
+Server::Server(const ServerConfig &cfg) : config(cfg) {
+	port = config.port;
+	server_fd = -1;
 }
 
 Server::~Server() {}
@@ -32,7 +36,7 @@ int Server::acceptConnection()
 
 std::string Server::generateResponse(const HttpRequestParse &req)
 {
-    HttpResponse res;
+    HttpResponse res(config);
 	std::string response;
     response = res.buildResponse(req);
     return response;
@@ -57,31 +61,30 @@ std::string Server::reciveRequest(int client_fd)
     return request;
 }
 
-
 // public methods
 void Server::setupSocket()
 {
-    server_fd = socket(AF_INET, SOCK_STREAM, 0);
-    if (server_fd == -1)
-    {
-        std::cerr << "socked failed" << std::endl;
-        return ;
-    }
-    memset(&address, 0, sizeof(address));
-    address.sin_family = AF_INET;
-    address.sin_addr.s_addr = INADDR_ANY;
-    address.sin_port = htons(port);
-    if (bind(server_fd, (sockaddr*)&address, sizeof(address)) < 0)
-    {
-        std::cerr << "bind failed" << std::endl;
-        return ;
-    }
-    if (listen(server_fd, 10) < 0)
-    {
-        std::cerr << "listen" << std::endl;
-        return ;
-    }
-    std::cout << "Server running at http://localhost:" << port << std::endl;
+	server_fd = socket(AF_INET, SOCK_STREAM, 0);
+	if (server_fd == -1) {
+		std::cerr << "socket failed" << std::endl;
+		return;
+	}
+
+	memset(&address, 0, sizeof(address));
+	address.sin_family = AF_INET;
+	address.sin_addr.s_addr = INADDR_ANY;
+	address.sin_port = htons(port);
+
+	if (bind(server_fd, (sockaddr*)&address, sizeof(address)) < 0) {
+		std::cerr << "bind failed" << std::endl;
+		return;
+	}
+	if (listen(server_fd, 10) < 0) {
+		std::cerr << "listen failed" << std::endl;
+		return;
+	}
+
+	std::cout << "Server running at http://localhost:" << port << std::endl;
 }
 
 void Server::run()
@@ -105,7 +108,6 @@ void Server::run()
         }
     }
 }
-
 
 // getters/setters
 int Server::getPort()

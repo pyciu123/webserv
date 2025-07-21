@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*																			*/
+/*														:::	  ::::::::   */
+/*   HttpRequestParse.cpp							   :+:	  :+:	:+:   */
+/*													+:+ +:+		 +:+	 */
+/*   By: jpyciarz <jpyciarz@student.42.fr>		  +#+  +:+	   +#+		*/
+/*												+#+#+#+#+#+   +#+		   */
+/*   Created: 2025/06/11 14:55:46 by pmilek			#+#	#+#			 */
+/*   Updated: 2025/07/21 10:09:55 by jpyciarz		 ###   ########.fr	   */
+/*																			*/
+/* ************************************************************************** */
+
 #include "../includes/HttpRequestParse.hpp"
 
 // constructors/destructor
@@ -28,17 +40,17 @@ HttpRequestParse::~HttpRequestParse() {}
 
 void HttpRequestParse::printAll() const
 {
-    std::cout << "Method: " << _method << std::endl;
-    std::cout << "Path: " << _path << std::endl;
-    std::cout << "HTTP Version: " << _httpVersion << std::endl;
+	std::cout << "Method: " << _method << std::endl;
+	std::cout << "Path: " << _path << std::endl;
+	std::cout << "HTTP Version: " << _httpVersion << std::endl;
 
-    std::cout << "Headers:" << std::endl;
-    for (std::map<std::string, std::string>::const_iterator it = _headers.begin(); it != _headers.end(); ++it)
-    {
-        std::cout << "  " << it->first << ": " << it->second << std::endl;
-    }
+	std::cout << "Headers:" << std::endl;
+	for (std::map<std::string, std::string>::const_iterator it = _headers.begin(); it != _headers.end(); ++it)
+	{
+		std::cout << "  " << it->first << ": " << it->second << std::endl;
+	}
 
-    std::cout << "Body:\n" << _body << std::endl;
+	std::cout << "Body:\n" << _body << std::endl;
 }
 
 // methods
@@ -60,14 +72,14 @@ void HttpRequestParse::parseRequest()
 				throw std::runtime_error("400 Bad Request: invalid request line");
 
 			isFirstLine = false;
-			isHeaders   = true;
-			continue;                // <-- KLUCZOWA LINIA
+			isHeaders = true;
+			continue;
 		}
 
 		if (isHeaders) {
 			if (line.empty()) {
 				isHeaders = false;
-				isBody    = true;
+				isBody = true;
 				continue;
 			}
 
@@ -75,10 +87,19 @@ void HttpRequestParse::parseRequest()
 			if (pos == std::string::npos)
 				throw std::runtime_error("400 Bad Request: invalid header format");
 
-			std::string key   = line.substr(0, pos);
+			std::string key = line.substr(0, pos);
 			std::string value = line.substr(pos + 1);
 			value.erase(0, value.find_first_not_of(' '));
 			_headers[key] = value;
+
+			// Aktualizacja contentLength
+			if (key == "Content-Length") {
+				try {
+					_contentLength = std::stoul(value);
+				} catch (const std::exception& e) {
+					throw std::runtime_error("400 Bad Request: invalid Content-Length");
+				}
+			}
 			continue;
 		}
 
