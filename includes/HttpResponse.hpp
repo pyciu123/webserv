@@ -6,7 +6,7 @@
 /*   By: jpyciarz <jpyciarz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/11 14:55:33 by pmilek            #+#    #+#             */
-/*   Updated: 2025/06/12 10:59:19 by jpyciarz         ###   ########.fr       */
+/*   Updated: 2025/07/21 09:23:42 by jpyciarz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@
 class HttpResponse
 {
 	private:
+		ServerConfig _config;
 		int _status;
 		std::string _statusMessage;
 		std::string _handleGet(const HttpRequestParse &req);
@@ -26,7 +27,7 @@ class HttpResponse
 		std::string _readFile(const std::string &path);
 	
 	public:
-		HttpResponse();
+		HttpResponse(const ServerConfig &cfg);
 		HttpResponse(const HttpResponse &copy);
 		HttpResponse &operator=(const HttpResponse &other);
 		~HttpResponse();
