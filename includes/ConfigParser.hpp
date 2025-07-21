@@ -6,14 +6,14 @@
 /*   By: jpyciarz <jpyciarz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/11 14:59:11 by pmilek            #+#    #+#             */
-/*   Updated: 2025/06/12 11:01:37 by jpyciarz         ###   ########.fr       */
+/*   Updated: 2025/07/21 09:35:09 by jpyciarz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef CONFIGPARSER_HPP
 #define CONFIGPARSER_HPP
 
-#include "Webserv.hpp"
+#include "../includes/Webserv.hpp"
 
 class ConfigParser {
 	private:
