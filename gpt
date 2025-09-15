@@ -1,0 +1,82 @@
+Przejrzałem Twój aktualny kod i porównałem go z wymaganiami projektu webserv z PDF-a ￼. Oto podsumowanie:
+
+⸻
+
+🔹 Na jakim etapie jest projekt
+
+Masz już:
+	•	Parser konfiguracji (ConfigParser) – obsługuje listen, root, server_name, client_max_body_size, error_page, location (z metodami, index, autoindex, cgi_extension, cgi_path, upload_path itd.). To jest zgodne z wymaganiami.
+	•	Podstawowy serwer (Server) – otwiera gniazdo, bind, listen, accept, odczyt requestu i wysyła response.
+	•	Parser requestów (HttpRequestParse) – rozdziela metodę, ścieżkę, nagłówki, body, długość body. Potrafi wykrywać błędy w requestach.
+	•	Budowanie odpowiedzi (HttpResponse) – działa dla GET, POST, DELETE i obsługuje pliki statyczne. Obsługa CGI jest w trakcie implementacji.
+	•	Szkielet CGI (CgiHandler) – wykonuje skrypty przez execve.
+	•	Makefile – buduje program z flagami (-Wall, -Wextra, -Werror, -std=c++98, -fsanitize=address, -g).
+
+⸻
+
+🔹 Co działa zgodnie z wymaganiami
+
+✔ Konfiguracja jest wczytywana z pliku.
+✔ Obsługa GET, POST, DELETE działa (podstawowa logika).
+✔ Potrafisz serwować statyczne pliki.
+✔ Obsługiwane są kody 200, 404, 405.
+✔ Struktura projektu i podział na pliki są poprawne.
+✔ Kompilacja jest zgodna ze standardem C++98.
+
+⸻
+
+🔹 Co jeszcze trzeba dodać, aby spełnić mandatory requirements
+	1.	Non-blocking I/O
+	•	Aktualnie używasz blocking socketów i pętli while (true) z accept() i read().
+	•	Projekt wymaga, żeby serwer działał w trybie nieblokującym i obsługiwał klientów przez poll() / select() / epoll() / kqueue().
+	•	Musisz więc:
+	•	ustawić sockety na O_NONBLOCK,
+	•	zastąpić pętlę while z accept/read/write → jedną pętlą event loop z poll() (lub select/kqueue/epoll),
+	•	obsługiwać równocześnie wielu klientów.
+	2.	Obsługa rozłączeń klientów
+	•	Aktualny kod nie rozpoznaje rozłączenia klienta. Musisz to poprawić przy pomocy poll().
+	3.	Domyślne strony błędów
+	•	Teraz wysyłasz tylko plain text "404 Not Found".
+	•	Projekt wymaga domyślnych stron błędów HTML, jeśli nie zdefiniowano własnych w configu.
+	4.	Obsługa wielu portów
+	•	Konfiguracja pozwala ustawić tylko jeden listen.
+	•	Musisz dodać możliwość otwierania wielu socketów i obsługiwania ich w jednej pętli event loop.
+	5.	Upload plików
+	•	W configu masz upload_path, ale w kodzie POST nie zapisuje pliku, tylko zwraca "POST request processed".
+	•	Musisz dodać zapis body requestu do pliku w odpowiednim katalogu.
+	6.	Zgodność z przeglądarkami
+	•	Na razie odpowiedzi nie zawierają wszystkich wymaganych nagłówków (Date, Server, poprawne Content-Type na podstawie MIME).
+	•	To trzeba poprawić, żeby działało w prawdziwych przeglądarkach (Firefox/Chrome).
+	7.	Obsługa klient_max_body_size
+	•	Masz sparsowane to w configu, ale nigdzie nie weryfikujesz wielkości body.
+	8.	Obsługa index + autoindex
+	•	W HttpResponse GET obsługuje tylko ścieżki plików.
+	•	Brakuje:
+	•	sprawdzania, czy ścieżka jest katalogiem,
+	•	obsługi index (np. index.html),
+	•	generowania listingu katalogu jeśli autoindex on.
+	9.	Więcej kodów odpowiedzi
+	•	Musisz zwracać m.in. 400 (bad request), 413 (payload too large), 500 (internal error), 301/302 (redirect), 403 (forbidden).
+	•	Część tego masz w configu (error_pages), ale nie jest używana w HttpResponse.
+
+⸻
+
+🔹 Błędy i niespójności w aktualnym kodzie
+	•	Makefile → reguła re ma literówkę: fclean all-e zamiast fclean all.
+	•	HttpRequestParse → _contentLength jest inicjalizowane -1, ale ma typ size_t (unsigned). To da bardzo dużą wartość zamiast -1.
+	•	reciveRequest() w Server – literówka w nazwie (recive zamiast receive).
+	•	Server::acceptConnection() – zwraca 1 przy błędzie, zamiast -1. W run() traktujesz client_id < 0 jako błąd, więc zwrócenie 1 powoduje złe zachowanie.
+	•	Brakuje obsługi chunked transfer encoding (wymagane w CGI).
+	•	Na razie cały serwer działa tylko z jednym klientem na raz – przy drugim kliencie będzie blokował.
+
+⸻
+
+✅ Podsumowując:
+Projekt jest na etapie podstawowego serwera działającego w trybie blokującym, który obsługuje konfigurację, GET/POST/DELETE i ma szkielet CGI.
+Aby spełnić mandatory requirements, musisz jeszcze:
+	•	wprowadzić poll/select i non-blocking I/O,
+	•	dodać obsługę wielu portów, upload plików, autoindex + index, limit body size, domyślne strony błędów, więcej statusów HTTP i pełną zgodność z przeglądarkami.
+
+⸻
+
+Chcesz, żebym zrobił Ci listę kolejnych kroków w implementacji w dokładnej kolejności (takie “todo” aż do zaliczenia mandatory)?
