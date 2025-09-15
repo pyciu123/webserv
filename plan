@@ -1,0 +1,63 @@
+Plan działania – Webserv
+
+Osoba A – Infrastruktura serwera
+
+Cel: doprowadzić serwer do działania w trybie nieblokującym, obsługującego wielu klientów jednocześnie.
+
+Zadania:
+	1.	Event loop
+		•	Zamiana obecnej pętli na poll() (lub select()).
+		•	Sockety w trybie O_NONBLOCK.
+		•	Obsługa równoczesnych połączeń.
+	2.	Sockety
+		•	Obsługa wielu portów (listen w configu może występować wielokrotnie).
+		•	Każdy port → osobny socket → wszystkie monitorowane w poll().
+	3.	Obsługa klientów
+		•	Akceptowanie wielu klientów i dodawanie ich FD do poll().
+		•	Rozłączenia klientów → usuwanie FD z poll().
+	4.	Stabilność
+		•	Poprawna obsługa błędów accept, recv, send.
+		•	Testy pod dużym obciążeniem (np. kilkadziesiąt równoczesnych curl).
+
+⸻
+
+Osoba B – Logika HTTP + CGI
+
+Cel: pełna obsługa protokołu HTTP, konfiguracji oraz integracja CGI.
+
+Zadania:
+	1.	HttpResponse
+		•	Obsługa kodów: 200, 301/302, 400, 403, 404, 405, 413, 500.
+		•	Integracja z error_pages.
+		•	Domyślne strony błędów HTML.
+		•	Dodanie nagłówków: Date, Server, poprawny Content-Type (MIME).
+	2.	Metody
+		•	GET: plik, katalog → index lub autoindex (listing).
+		•	POST: zapis body requestu do pliku w upload_path.
+		•	DELETE: usuwanie plików, odpowiednie kody zwrotne.
+	3.	Body requestu
+		•	Walidacja Content-Length względem client_max_body_size.
+		•	Obsługa chunked transfer (przynajmniej do CGI).
+	4.	Konfiguracja
+		•	Obsługa redirection (return w configu).
+		•	Obsługa server_names.
+	5.	CGI
+		•	Dokończenie CgiHandler.
+		•	Uruchamianie interpreterów (np. Python, PHP) na podstawie rozszerzenia pliku.
+		•	Przekazywanie zmiennych środowiskowych zgodnych z CGI.
+		•	Obsługa body requestu jako wejście CGI (STDIN).
+		•	Obsługa outputu CGI i zwracanie go jako poprawna odpowiedź HTTP.
+		•	Obsługa błędów CGI (np. brak skryptu, złe uprawnienia).
+	6.	Testy
+		•	curl, telnet, przeglądarka → porównanie zachowania z NGINX.
+		•	Testy CGI z prostymi skryptami (np. api.py, test.php).
+
+⸻
+
+Podział pracy
+	•	Osoba A → Server.cpp/hpp + klasa pomocnicza do obsługi poll/select.
+	•	Osoba B → HttpResponse.cpp/hpp, CgiHandler.cpp/hpp, ewentualne zmiany w HttpRequestParse.
+
+Interfejs między A i B:
+	•	A dostarcza std::string rawRequest → HttpRequestParse.
+	•	B buduje odpowiedź (statyczną lub CGI) i zwraca ją jako string → A wysyła do klienta.
