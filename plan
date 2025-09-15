@@ -1,6 +1,6 @@
 Plan działania – Webserv
 
-Osoba A – Infrastruktura serwera
+Patryk – Infrastruktura serwera
 
 Cel: doprowadzić serwer do działania w trybie nieblokującym, obsługującego wielu klientów jednocześnie.
 
@@ -21,7 +21,7 @@ Zadania:
 
 ⸻
 
-Osoba B – Logika HTTP + CGI
+Kuba – Logika HTTP + CGI
 
 Cel: pełna obsługa protokołu HTTP, konfiguracji oraz integracja CGI.
 
@@ -55,9 +55,9 @@ Zadania:
 ⸻
 
 Podział pracy
-	•	Osoba A → Server.cpp/hpp + klasa pomocnicza do obsługi poll/select.
-	•	Osoba B → HttpResponse.cpp/hpp, CgiHandler.cpp/hpp, ewentualne zmiany w HttpRequestParse.
+	•	Patryk → Server.cpp/hpp + klasa pomocnicza do obsługi poll/select.
+	•	Kuba → HttpResponse.cpp/hpp, CgiHandler.cpp/hpp, ewentualne zmiany w HttpRequestParse.
 
-Interfejs między A i B:
-	•	A dostarcza std::string rawRequest → HttpRequestParse.
-	•	B buduje odpowiedź (statyczną lub CGI) i zwraca ją jako string → A wysyła do klienta.
+Interfejs między Patrykiem i Kubą:
+	•	Patryk dostarcza std::string rawRequest → HttpRequestParse.
+	•	Kuba buduje odpowiedź (statyczną lub CGI) i zwraca ją jako string → A wysyła do klienta.
